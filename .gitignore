@@ -8,3 +8,14 @@ wheels/
 
 # Virtual environments
 .venv
+
+.env
+prueba/
+data/
+data2/
+*.csv
+*.xml
+*.json
+*.html
+*.joblib
+traffic/

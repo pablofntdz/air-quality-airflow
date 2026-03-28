@@ -1,0 +1,20 @@
+from config.paths import MODEL_DIR
+MODELS = [
+    {"magnitud": 12, "estacion": 4, "model_path": MODEL_DIR / "rf_estacion_4.joblib"},
+    {"magnitud": 12, "estacion": 8, "model_path": MODEL_DIR / "rf_estacion_8.joblib"},
+    {"magnitud": 12, "estacion": 11, "model_path": MODEL_DIR / "rf_estacion_11.joblib"},
+    {"magnitud": 12, "estacion": 16, "model_path": MODEL_DIR / "rf_estacion_16.joblib"},
+    {"magnitud": 12, "estacion": 17, "model_path": MODEL_DIR / "rf_estacion_17.joblib"},
+    {"magnitud": 12, "estacion": 27, "model_path": MODEL_DIR / "rf_estacion_27.joblib"},
+    {"magnitud": 12, "estacion": 35, "model_path": MODEL_DIR / "rf_estacion_35.joblib"},
+    {"magnitud": 12, "estacion": 36, "model_path": MODEL_DIR / "rf_estacion_36.joblib"},
+    {"magnitud": 12, "estacion": 38, "model_path": MODEL_DIR / "rf_estacion_38.joblib"},
+    {"magnitud": 12, "estacion": 39, "model_path": MODEL_DIR / "rf_estacion_39.joblib"},
+    {"magnitud": 12, "estacion": 40, "model_path": MODEL_DIR / "rf_estacion_40.joblib"},
+    {"magnitud": 12, "estacion": 47, "model_path": MODEL_DIR / "rf_estacion_47.joblib"},
+    {"magnitud": 12, "estacion": 48, "model_path": MODEL_DIR / "rf_estacion_48.joblib"},
+    {"magnitud": 12, "estacion": 50, "model_path": MODEL_DIR / "rf_estacion_50.joblib"},
+    {"magnitud": 12, "estacion": 56, "model_path": MODEL_DIR / "rf_estacion_56.joblib"},
+    {"magnitud": 12, "estacion": 57, "model_path": MODEL_DIR / "rf_estacion_57.joblib"},
+    {"magnitud": 12, "estacion": 60, "model_path": MODEL_DIR / "rf_estacion_60.joblib"},
+]

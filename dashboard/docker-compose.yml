@@ -1,0 +1,12 @@
+services:
+  streamlit:
+    build: .
+    ports:
+      - "8501:8501"
+    networks:
+      - airflow_net
+
+networks:
+  airflow_net:
+    external: true
+    name: project-air-quality-traffic_36119f_airflow
