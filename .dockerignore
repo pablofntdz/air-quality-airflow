@@ -6,7 +6,10 @@ logs/
 .venv
 airflow.db
 airflow.cfg
-
+.astro/
+.cache.sqlite
+*.pkl
+*.ipynb
 
 *.csv
 *.xml
