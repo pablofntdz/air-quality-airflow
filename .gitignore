@@ -17,7 +17,6 @@ data2/
 *.xml
 *.json
 *.html
-*.joblib
 traffic/
 uv.lock
 pyproject.toml
