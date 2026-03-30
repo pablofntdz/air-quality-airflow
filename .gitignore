@@ -9,6 +9,11 @@ wheels/
 # Virtual environments
 .venv
 
+#astro
+.astro
+airflow_settings.yaml
+.cache.sqlite
+
 .env
 prueba/
 data/
@@ -20,4 +25,3 @@ data2/
 traffic/
 uv.lock
 pyproject.toml
-airflow_settings.yaml
