@@ -19,3 +19,5 @@ data2/
 *.html
 *.joblib
 traffic/
+uv.lock
+pyproject.toml
