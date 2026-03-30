@@ -21,3 +21,4 @@ data2/
 traffic/
 uv.lock
 pyproject.toml
+airflow_settings.yaml
