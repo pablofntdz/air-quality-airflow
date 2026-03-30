@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import psycopg2
 import pandas as pd
 from sqlalchemy import create_engine
+import os
 # ===========================
 # Config
 # ===========================
@@ -15,7 +16,11 @@ st.title("Air Quality Predictions Dashboard")
 
 @st.cache_data(ttl=300)  # refresca cada 5 minutos
 def load_predictions():
-    engine = create_engine("postgresql://postgres:12345@project_db:5432/project_db")
+    db_url = (
+        f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}"
+        f"@project_db:5432/{os.environ['POSTGRES_DB']}"
+    )
+    engine = create_engine(db_url)
     df = pd.read_sql("SELECT * FROM predictions ORDER BY timestamp DESC", engine)
     return df
 

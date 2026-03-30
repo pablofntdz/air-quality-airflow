@@ -135,16 +135,15 @@ def ingestion_pipeline():
 
         context = get_current_context()
         ds_nodash = context["run_id"].replace(":", "_").replace("+", "_").replace(".", "_")
-        base_path = f"{ds_nodash}/processed/final"
+        base_path = f"{ds_nodash}/final"
         output_path = f"{base_path}/df_final.parquet"
-    
         buffer = BytesIO()
         df_final.to_parquet(buffer, index=False)
         buffer.seek(0)
 
         save_processed_file(buffer.getvalue(), MINIO_BUCKET, output_path)
 
-        Variable.set("last_final_output_path", str(output_path))
+        Variable.set("last_final_output_path", str(base_path))
         tmp_dir = TMP_DIR / ds_nodash
         shutil.rmtree(tmp_dir, ignore_errors=True)
         print("Pipeline finished -> dataset_final.csv")

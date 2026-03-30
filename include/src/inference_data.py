@@ -6,13 +6,15 @@ from include.src.utils import get_latest
 from include.config.models import MODELS
 from include.config.paths import DATA_HOURLY_DIR,MODEL_DIR
 import joblib
+import os
 MINIO_BUCKET = "aq-processed"
-MINIO_ENDPOINT = "http://minio:9000"
-MINIO_ACCESS_KEY = "minioadmin"
-MINIO_SECRET_KEY = "minioadmin123"
+MINIO_ACCESS_KEY = os.environ["MINIO_ROOT_USER"]
+MINIO_SECRET_KEY = os.environ["MINIO_ROOT_PASSWORD"]
+MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "http://minio:9000")
+
 STORAGE_OPTIONS = {
     "key": MINIO_ACCESS_KEY,
-    "secret": MINIO_SECRET_KEY,
+    "secret": MINIO_SECRET_KEY, 
     "client_kwargs": {
         "endpoint_url": MINIO_ENDPOINT}
 }
@@ -118,7 +120,6 @@ def evaluate_model(df: pd.DataFrame, estacion, magnitud):
     #model = joblib.load(model_path)
     data = joblib.load( MODEL_DIR / "modelo_8_12.pkl")
     model = data["model"]
-    features = data.get("features", None)
 
     X = df_model[FEATURES]
     y = df_model["valor"]

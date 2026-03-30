@@ -7,17 +7,20 @@ from datetime import datetime
 from include.config.urls import URLS
 from include.config.paths import RAW_DIR , TMP_DIR
 from dateutil.relativedelta import relativedelta
+from airflow.models import Variable
 import s3fs
 import boto3
+import os
 # Logging configuration
 logging.basicConfig(level=logging.INFO,format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # MinIO config
-MINIO_ENDPOINT = "http://minio:9000"
-MINIO_ACCESS_KEY = "minioadmin"
-MINIO_SECRET_KEY = "minioadmin123"
+MINIO_ACCESS_KEY = os.environ["MINIO_ROOT_USER"]
+MINIO_SECRET_KEY = os.environ["MINIO_ROOT_PASSWORD"]
+MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "http://minio:9000")
 MINIO_BUCKET = "aq-raw"
+
 
 fs = s3fs.S3FileSystem(
     key=MINIO_ACCESS_KEY,
@@ -33,6 +36,7 @@ s3 = boto3.client(
 
 # Helper functions
 def setup_bucket():
+    env = Variable.get("env")
     if not fs.exists(MINIO_BUCKET):
         fs.mkdir(MINIO_BUCKET)
         logger.info(f"Bucket creado: {MINIO_BUCKET}")
