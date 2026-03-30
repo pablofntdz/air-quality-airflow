@@ -1,8 +1,8 @@
 # dashboard/app.py
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
+import plotly.express as px # type: ignore
+import plotly.graph_objects as go # type: ignore
 from datetime import datetime, timedelta
 import psycopg2
 import pandas as pd
