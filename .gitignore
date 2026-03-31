@@ -10,7 +10,6 @@ wheels/
 .venv
 
 #astro
-.astro
 airflow_settings.yaml
 .cache.sqlite
 
