@@ -9,8 +9,7 @@ services:
       - "5433:5432"
     volumes:
       - project_db_data:/var/lib/postgresql/data
-    networks:
-      - airflow_net
+
   minio:
     image: minio/minio
     container_name: minio
@@ -23,13 +22,6 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
-    networks:
-      - airflow_net
-
-networks:
-  airflow_net:
-    external: true
-    name: project-air-quality-traffic_36119f_airflow
 
 volumes:
   project_db_data:
