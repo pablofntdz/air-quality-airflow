@@ -1,4 +1,4 @@
-from config.paths import MODEL_DIR
+from include.config.paths import MODEL_DIR
 MODELS = [
     {"magnitud": 12, "estacion": 4, "model_path": MODEL_DIR / "rf_estacion_4.joblib"},
     {"magnitud": 12, "estacion": 8, "model_path": MODEL_DIR / "rf_estacion_8.joblib"},
