@@ -9,16 +9,17 @@ def download_models_if_missing():
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
     for station in STATIONS:
-        filename = f"models/rf_estacion_{station}.joblib"
+        filename = f"rf_estacion_{station}.joblib"   
         local_path = MODEL_DIR / filename
 
         if local_path.exists():
             print(f"[SKIP] {filename} ya existe.")
             continue
 
+        print(f"[DOWNLOAD] Descargando {filename}...")
         tmp_path = hf_hub_download(
             repo_id=REPO_ID,
             filename=f"models/{filename}",
         )
-        
         shutil.copy(tmp_path, local_path)
+        print(f"[OK] {filename} → {local_path}")
