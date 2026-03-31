@@ -26,6 +26,18 @@ services:
     networks:
       - airflow_net
 
+  # ── Servicios de Astro con volumen de modelos ──────────────
+  scheduler:
+    volumes:
+      - hf_models:/usr/local/airflow/include/models
+
+  webserver:
+    volumes:
+      - hf_models:/usr/local/airflow/include/models
+
+  triggerer:
+    volumes:
+      - hf_models:/usr/local/airflow/include/models
 
 networks:
   airflow_net:
@@ -35,3 +47,4 @@ networks:
 volumes:
   project_db_data:
   minio_data:
+  hf_models:

@@ -1,5 +1,5 @@
 from pathlib import Path
-from include.src.inference_data import load_data,build_features, MODELS,evaluate_model_stations,get_stations
+from include.src.inference_data import load_data,build_features,evaluate_model_stations,get_stations
 import pandas as pd
 from datetime import datetime
 import os
@@ -34,8 +34,13 @@ def prepare_stations(base_path, stations):
 @dag( schedule=[final_data_asset], start_date=datetime(2024, 1, 1), catchup=False , tags=["inference","ml"], default_args={"retries": 2} )
 def inference_pipeline():
     @task
+    def download_models():
+        from include.src.download_models import download_models_if_missing
+        download_models_if_missing()
+    @task
     def get_input_path():
         return Variable.get("last_final_output_path")
+
     @task
     def prepare_data(input_path):
         stations = [4, 8, 11, 16, 17, 27, 35, 36, 38, 39, 40, 47, 48, 50, 56, 57, 60]
@@ -102,12 +107,13 @@ def inference_pipeline():
         conn.close()
 
         shutil.rmtree(inference_path, ignore_errors=True)
-        
+
         print(f"Saved {len(df_result)} predictions for station {station_id}")
     
-    
+    models_ready = download_models()
     input_path = get_input_path()
     station_paths = prepare_data(input_path)
+    station_paths.set_upstream(models_ready)
     stations = [4, 8, 11, 16, 17, 27, 35, 36, 38, 39, 40, 47, 48, 50, 56, 57, 60]
     task_load_data.partial(station_paths=station_paths).expand(station_id=stations)
 
