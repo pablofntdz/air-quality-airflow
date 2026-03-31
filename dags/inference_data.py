@@ -17,15 +17,15 @@ def prepare_stations(base_path, stations):
     df = load_data(input_path)
     df = build_features(df)
     # carpeta temporal local
-    base_path = TMP_DIR / "inference_stations"
-    os.makedirs(base_path, exist_ok=True)
+    base_tmp_path = TMP_DIR / "inference_stations"
+    os.makedirs(base_tmp_path, exist_ok=True)
     station_paths = {}
     
     for station in stations:
         df_station = df[(df["estacion"] == station) & (df["magnitud"] == 12)].copy()
         if df_station.empty:
             continue
-        path = str(base_path / f"station_{station}.parquet")
+        path = str(base_tmp_path / f"station_{station}.parquet")
         df_station.to_parquet(path, index=False)
         station_paths[station] = path
     
@@ -59,10 +59,9 @@ def inference_pipeline():
         if df_result is None:
             return
         
-        
         context = get_current_context()
         ds_nodash = context["run_id"].replace(":","_").replace("+","_").replace(".","_")
-        base_tmp_path = TMP_DIR / f"{ds_nodash}/processed/traffic"
+        base_tmp_path = TMP_DIR / f"{ds_nodash}/processed_stations/"
         os.makedirs(base_tmp_path, exist_ok=True)
         inference_path = str(base_tmp_path / f"station_{station_id}.parquet")
         df_result.to_parquet(inference_path, index=False)
@@ -105,10 +104,16 @@ def inference_pipeline():
         conn.commit()
         cur.close()
         conn.close()
-
-        shutil.rmtree(inference_path, ignore_errors=True)
-
         print(f"Saved {len(df_result)} predictions for station {station_id}")
+
+    @task(trigger_rule="all_done")
+    def cleanup():
+        context = get_current_context()
+        ds_nodash = context["run_id"].replace(":","_").replace("+","_").replace(".","_")
+        base_tmp_path = TMP_DIR / f"{ds_nodash}"
+        if base_tmp_path.exists():
+            shutil.rmtree(base_tmp_path, ignore_errors=True)
+            print(f"[CLEANUP] Eliminada carpeta temporal: {base_tmp_path}")
     
     models_ready = download_models()
     input_path = get_input_path()
@@ -116,6 +121,7 @@ def inference_pipeline():
     station_paths.set_upstream(models_ready)
     stations = [4, 8, 11, 16, 17, 27, 35, 36, 38, 39, 40, 47, 48, 50, 56, 57, 60]
     task_load_data.partial(station_paths=station_paths).expand(station_id=stations)
-
+    results = task_load_data.partial(station_paths=station_paths).expand(station_id=stations)
+    cleanup(results)
 
 inference_pipeline()
