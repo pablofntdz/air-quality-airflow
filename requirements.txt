@@ -454,3 +454,4 @@ astro-run-dag
 apache-airflow-providers-postgres
 s3fs
 boto3
+huggingface_hub
