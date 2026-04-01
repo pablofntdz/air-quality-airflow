@@ -107,7 +107,7 @@ def inference_pipeline():
         print(f"Saved {len(df_result)} predictions for station {station_id}")
 
     @task(trigger_rule="all_done")
-    def cleanup():
+    def cleanup(results):
         context = get_current_context()
         ds_nodash = context["run_id"].replace(":","_").replace("+","_").replace(".","_")
         base_tmp_path = TMP_DIR / f"{ds_nodash}"

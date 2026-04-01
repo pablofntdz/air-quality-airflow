@@ -24,7 +24,7 @@ def make_path(base, subdir, filename):
     os.makedirs(path.parent, exist_ok=True)
     return str(path)
 
-@dag(schedule=[air_raw_data_asset,meteo_raw_data_asset,traffic_raw_data_asset], start_date=datetime(2024, 1, 1), catchup=False,tags=["transform", "etl"], default_args={"retries": 2})
+@dag(schedule=[air_raw_data_asset,meteo_raw_data_asset,traffic_raw_data_asset], start_date=datetime(2026, 4, 1), catchup=False,tags=["transform", "etl"], default_args={"retries": 2})
 def ingestion_pipeline():
     @task
     def task_load_raw_data():

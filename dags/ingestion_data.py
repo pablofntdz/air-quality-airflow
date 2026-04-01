@@ -9,7 +9,7 @@ air_raw_data_asset = Asset("air_raw_data_ready")
 meteo_raw_data_asset = Asset("meteo_raw_data_ready")
 traffic_raw_data_asset = Asset("traffic_raw_data_ready")
 
-@dag(schedule="@hourly", start_date=datetime(2024, 1, 1), catchup=False,tags=["download", "raw"], default_args={"retries": 2})
+@dag(schedule="@hourly", start_date=datetime(2026, 4, 1), catchup=False,tags=["download", "raw"], default_args={"retries": 2})
 def download_pipeline():
     @task
     def task_setup():

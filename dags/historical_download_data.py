@@ -24,7 +24,7 @@ def make_path(base, subdir, filename):
 
 @dag(
     schedule="0 0 1 * *",  # primer día de cada mes
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime(2026, 10, 1),
     catchup=False,
     tags=["retrain", "historical"],
     default_args={"retries": 2}

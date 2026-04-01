@@ -1,16 +1,9 @@
 # dags/retrain_pipeline.py
 from datetime import datetime
 from pathlib import Path
-import pandas as pd
-import numpy as np
 import os
-import joblib
-
 from airflow.sdk import dag, task, Asset, Variable
 from include.config.paths import MODEL_DIR, TMP_DIR
-from include.src.inference_data import load_data, build_features, get_stations
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error
 
 historical_data_asset = Asset("historical_data_ready")
 
@@ -28,7 +21,7 @@ FEATURES = [
 
 @dag(
     schedule=[historical_data_asset],
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime(2026, 4, 1),
     catchup=False,
     tags=["retrain", "ml"],
     default_args={"retries": 2}
@@ -41,6 +34,7 @@ def retrain_pipeline():
 
     @task
     def prepare_station_data(input_path):
+        from include.src.inference_data import load_data, build_features
         df = load_data(input_path)
         df = build_features(df)
 
@@ -63,6 +57,11 @@ def retrain_pipeline():
 
     @task(max_active_tis_per_dag=4)
     def retrain_station(station_id, station_paths):
+        import pandas as pd                          
+        import numpy as np
+        import joblib
+        from sklearn.ensemble import RandomForestRegressor
+        from sklearn.metrics import mean_squared_error
         path = station_paths.get(str(station_id))
         if not path:
             print(f"No data for station {station_id}, skipping")
