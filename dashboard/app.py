@@ -14,7 +14,7 @@ import os
 st.set_page_config(page_title="Air Quality Predictions", layout="wide")
 st.title("Air Quality Predictions Dashboard")
 
-@st.cache_data(ttl=300)  # refresca cada 5 minutos
+@st.cache_data(ttl=60)  # refresca cada 5 minutos
 def load_predictions():
     db_url = (
         f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}"
