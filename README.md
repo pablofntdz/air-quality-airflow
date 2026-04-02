@@ -8,7 +8,7 @@ Data and inference pipeline for air quality monitoring in Madrid, orchestrated w
 
 ```
                         ┌─────────────┐
-                        │ HuggingFace │  
+                        │ HuggingFace │  .joblib models
                         └──────┬──────┘
                                │ auto download
                                ▼
@@ -16,6 +16,12 @@ Data and inference pipeline for air quality monitoring in Madrid, orchestrated w
 │  MinIO   │ ─────────► │   Airflow   │ ────────────────► │  PostgreSQL  │
 │  (data)  │            │  (Astro CLI)│                   │  (results)   │
 └──────────┘            └─────────────┘                   └──────────────┘
+                                                                  │
+                                                                  ▼
+                                                          ┌──────────────┐
+                                                          │  Dashboard   │
+                                                          │  (Streamlit) │
+                                                          └──────────────┘
 ```
 
 ## Services
@@ -25,6 +31,7 @@ Data and inference pipeline for air quality monitoring in Madrid, orchestrated w
 | Airflow | DAG orchestration (Astro CLI) | 8080 |
 | MinIO | Processed data storage | 9000 / 9001 |
 | PostgreSQL | Predictions database | 5433 |
+| Dashboard | Streamlit visualization | 8501 |
 
 ---
 
@@ -74,12 +81,18 @@ Edit `.env` with your values (see `.env.example` for reference).
 
 ### 3. Start the services
 
+Use the startup script — it launches Airflow, connects all containers to the same network, starts the dashboard, and configures nginx automatically.
+ 
+**Windows:**
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+./start.ps1
+```
+ 
+**Linux/Mac:**
 ```bash
-# External services (PostgreSQL + MinIO)
-docker compose -f docker-compose.override.yml up -d
-
-# Airflow via Astro CLI
-astro dev start
+chmod +x start.sh
+./start.sh
 ```
 
 ### 4. Access the interfaces
@@ -91,7 +104,7 @@ astro dev start
 
 ---
 
-## 🤖 Models
+## Models
 
 Models are hosted on HuggingFace: [`pablofntdz/air-quality-scikit-learn`](https://huggingface.co/pablofntdz/air-quality-scikit-learn)
 
@@ -102,49 +115,66 @@ Available models for stations:
 
 ---
 
-## 🗂️ Project structure
+## Project structure
 
 ```
 air-quality-airflow/
-├── dags/                        # Airflow DAGs
-│   ├── inference_data.py        # Inference pipeline
-│   ├── transform_data.py        # Data transformation
-│   ├── historical_download_data.py
-│   └── ingestion_data.py
+├── dags/
+│   ├── inference_data.py           # Inference pipeline
+│   ├── ingestion_data.py           # Data ingestion into MinIO
+│   ├── transform_data.py           # Data transformation
+│   ├── historical_download_data.py # Historical data download
+│   └── retraining_models.py        # Model retraining
 ├── include/
 │   ├── config/
-│   │   ├── paths.py             # Project paths
-│   │   ├── models.py            # Model configuration
-│   │   └── urls.py
+│   │   ├── paths.py                # Project paths
+│   │   ├── models.py               # Model configuration
+│   │   └── urls.py                 # Data source URLs
 │   └── src/
-│       ├── inference_data.py    # Inference logic
-│       ├── download_models.py   # HuggingFace model downloader
-│       ├── transform_data.py
-│       └── download_data.py
+│       ├── inference_data.py       # Inference logic
+│       ├── download_models.py      # HuggingFace model downloader
+│       ├── transform_data.py       # Transformation logic
+│       └── download_data.py        # Data download logic
 ├── dashboard/
-│   └── app.py                   # Results dashboard
+│   ├── app.py                      # Streamlit dashboard
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── docker-compose.yml
 ├── tests/
 ├── Dockerfile
 ├── requirements.txt
-├── docker-compose.override.yml  # PostgreSQL + MinIO + volumes
-├── .env.example                 # Environment variables template
+├── docker-compose.override.yml     # PostgreSQL + MinIO
+├── start.sh                        # Startup script (Linux/Mac)
+├── start.ps1                       # Startup script (Windows)
+├── .env.example                    # Environment variables template
 └── .gitignore
 ```
 
 ---
 
-## 🔄 DAGs
+## DAGs
 
 | DAG | Description | Trigger |
 |---|---|---|
-| `inference_pipeline` | Downloads models and runs air quality inference per station | Asset `final_data_ready` |
-| `transform_data` | Transforms and processes raw data | Scheduled |
-| `historical_download_data` | Downloads historical data | Manual |
-| `ingestion_data` | Data ingestion into MinIO | Scheduled |
+| `download_pipeline` | Downloads raw air quality data | `@hourly` |
+| `ingestion_pipeline` | Transforms and ingests data into MinIO | Asset `*_raw_data_ready` |
+| `inference_pipeline` | Downloads models and runs NO₂ predictions per station | Asset `final_data_ready` |
+| `historical_download_pipeline` | Downloads historical data for retraining | `0 0 1 * *` (monthly) |
+| `retrain_pipeline` | Retrains Random Forest models per station | Asset `historical_data_ready` |
 
 ---
-
-## 🧪 Tests
+ 
+## Dashboard
+ 
+The Streamlit dashboard connects to PostgreSQL and displays:
+ 
+- Interactive map of Madrid monitoring stations
+- Predicted vs real NO₂ values per station
+- Anomaly detection based on prediction error
+- Performance metrics (RMSE, MAE) per station
+ 
+---
+## Tests
 
 ```bash
 astro dev pytest tests/
